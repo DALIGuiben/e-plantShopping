@@ -1,68 +1,91 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { removeItem, updateQuantity } from './CartSlice';
-import './CartItem.css';
 
-const CartItem = ({ onContinueShopping }) => {
-  const cart = useSelector(state => state.cart.items);
+const CartItem = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const cartItems = useSelector(state => state.cart.items);
 
-  // Calculate total amount for all products in the cart
+  // Calculate total cart amount
   const calculateTotalAmount = () => {
- 
+    return cartItems.reduce((total, item) => {
+      const price = parseFloat(item.cost.substring(1));
+      return total + price * item.quantity;
+    }, 0).toFixed(2);
   };
 
-  const handleContinueShopping = (e) => {
-   
+  // Calculate subtotal for a single plant type
+  const calculateItemTotal = (item) => {
+    const price = parseFloat(item.cost.substring(1));
+    return (price * item.quantity).toFixed(2);
   };
-
-
 
   const handleIncrement = (item) => {
+    dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }));
   };
 
   const handleDecrement = (item) => {
-   
+    if (item.quantity > 1) {
+      dispatch(updateQuantity({ id: item.id, quantity: item.quantity - 1 }));
+    } else {
+      dispatch(removeItem({ id: item.id }));
+    }
   };
 
   const handleRemove = (item) => {
+    dispatch(removeItem({ id: item.id }));
   };
 
-  // Calculate total cost based on quantity for an item
-  const calculateTotalCost = (item) => {
+  const handleContinueShopping = () => {
+    navigate('/products');
   };
+
+  const handleCheckout = () => {
+    alert('Functionality to be added for future reference');
+  };
+
+  if (cartItems.length === 0) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <h2>Shopping Cart</h2>
+        <p>Your cart is empty.</p>
+        <button onClick={handleContinueShopping}>Continue Shopping</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="cart-container">
-      <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount()}</h2>
+    <div style={{ padding: '2rem' }}>
+      <h2>Shopping Cart</h2>
       <div>
-        {cart.map(item => (
-          <div className="cart-item" key={item.name}>
-            <img className="cart-item-image" src={item.image} alt={item.name} />
-            <div className="cart-item-details">
-              <div className="cart-item-name">{item.name}</div>
-              <div className="cart-item-cost">{item.cost}</div>
-              <div className="cart-item-quantity">
-                <button className="cart-item-button cart-item-button-dec" onClick={() => handleDecrement(item)}>-</button>
-                <span className="cart-item-quantity-value">{item.quantity}</span>
-                <button className="cart-item-button cart-item-button-inc" onClick={() => handleIncrement(item)}>+</button>
-              </div>
-              <div className="cart-item-total">Total: ${calculateTotalCost(item)}</div>
-              <button className="cart-item-delete" onClick={() => handleRemove(item)}>Delete</button>
+        {cartItems.map(item => (
+          <div key={item.id} style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #ccc', padding: '1rem', gap: '1rem' }}>
+            <img src={item.thumbnail} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'cover' }} />
+            <div style={{ flex: 1 }}>
+              <h3>{item.name}</h3>
+              <p>Unit Price: {item.cost}</p>
+              <p>Item Total: ${calculateItemTotal(item)}</p>
+            </div>
+            <div>
+              <button onClick={() => handleDecrement(item)}>-</button>
+              <span style={{ margin: '0 10px' }}>{item.quantity}</span>
+              <button onClick={() => handleIncrement(item)}>+</button>
+              <button onClick={() => handleRemove(item)} style={{ marginLeft: '10px', backgroundColor: 'red', color: 'white', border: 'none', padding: '5px 10px' }}>Delete</button>
             </div>
           </div>
         ))}
       </div>
-      <div style={{ marginTop: '20px', color: 'black' }} className='total_cart_amount'></div>
-      <div className="continue_shopping_btn">
-        <button className="get-started-button" onClick={(e) => handleContinueShopping(e)}>Continue Shopping</button>
-        <br />
-        <button className="get-started-button1">Checkout</button>
+      <div style={{ marginTop: '2rem', textAlign: 'right' }}>
+        <p>Total Plants: {cartItems.reduce((sum, i) => sum + i.quantity, 0)}</p>
+        <p>Total Cost: ${calculateTotalAmount()}</p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+          <button onClick={handleContinueShopping}>Continue Shopping</button>
+          <button onClick={handleCheckout}>Checkout</button>
+        </div>
       </div>
     </div>
   );
 };
 
 export default CartItem;
-
-
