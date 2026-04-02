@@ -11,9 +11,9 @@ const Header = () => {
       <Link to="/" style={{ color: 'white', textDecoration: 'none', fontSize: '1.5rem' }}>Paradise Nursery</Link>
       <div>
         <Link to="/products" style={{ color: 'white', marginRight: '1rem' }}>Plants</Link>
-        <Link to="/cart" style={{ color: 'white' }}>
+        <Link to="/cart" style={{ color: 'white', display: 'inline-flex', alignItems: 'center' }}>
           <FaShoppingCart />
-          <span style={{ marginLeft: '5px', backgroundColor: 'red', borderRadius: '50%', padding: '2px 6px' }}>{totalItems}</span>
+          <span style={{ marginLeft: '5px', backgroundColor: 'red', borderRadius: '50%', padding: '2px 6px', fontSize: '12px' }}>{totalItems}</span>
         </Link>
       </div>
     </nav>
